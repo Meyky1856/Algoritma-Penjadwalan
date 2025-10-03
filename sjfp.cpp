@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <iomanip>
+
 using namespace std;
 
 struct Process
@@ -13,6 +14,7 @@ struct Process
     int completionTime;
     int turnaroundTime;
     int waitingTime;
+    int startTime;
     bool isCompleted;
 };
 
@@ -37,6 +39,7 @@ int main()
         cin >> processes[i].burstTime;
         processes[i].remainingTime = processes[i].burstTime;
         processes[i].isCompleted = false;
+        processes[i].startTime = -1;
     }
 
     int currentTime = 0;
@@ -65,8 +68,14 @@ int main()
         }
         else
         {
+            if (processes[shortestJobIndex].startTime == -1)
+            {
+                processes[shortestJobIndex].startTime = currentTime;
+            }
+
             processes[shortestJobIndex].remainingTime--;
             currentTime++;
+
             if (processes[shortestJobIndex].remainingTime == 0)
             {
                 processes[shortestJobIndex].completionTime = currentTime;
@@ -74,6 +83,7 @@ int main()
                 processes[shortestJobIndex].waitingTime = processes[shortestJobIndex].turnaroundTime - processes[shortestJobIndex].burstTime;
                 totalTurnaroundTime += processes[shortestJobIndex].turnaroundTime;
                 totalWaitingTime += processes[shortestJobIndex].waitingTime;
+
                 processes[shortestJobIndex].isCompleted = true;
                 completedProcesses++;
             }
@@ -85,25 +95,34 @@ int main()
 
     cout << endl
          << "--- Hasil Penjadwalan SJF Preemptive (SRTF) ---" << endl;
-    cout << "=====================================================================================================" << endl;
-    cout << left << setw(10) << "Proses"
+    cout << "=======================================================================================================================" << endl;
+    cout << left
+         << setw(10) << "Proses"
          << setw(15) << "Arrival Time"
          << setw(15) << "Burst Time"
+         << setw(15) << "Start Time"
          << setw(20) << "Completion Time"
          << setw(20) << "Turnaround Time"
          << setw(15) << "Waiting Time" << endl;
-    cout << "=====================================================================================================" << endl;
+    cout << "=======================================================================================================================" << endl;
 
     for (const auto &p : processes)
     {
-        cout << left << setw(10) << "P" + to_string(p.pid)
+        cout << left
+             << setw(10) << "P" + to_string(p.pid)
              << setw(15) << p.arrivalTime
              << setw(15) << p.burstTime
+             << setw(15) << p.startTime
              << setw(20) << p.completionTime
              << setw(20) << p.turnaroundTime
              << setw(15) << p.waitingTime << endl;
     }
-    cout << "=====================================================================================================" << endl;
+    cout << "=======================================================================================================================" << endl;
+
+    cout << fixed << setprecision(2);
+    cout << endl << "Rata-rata Turnaround Time: " << totalTurnaroundTime / n << endl;
+    cout << "Rata-rata Waiting Time:   " << totalWaitingTime / n << endl;
+
 
     return 0;
 }
